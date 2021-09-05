@@ -15,9 +15,12 @@ file4="/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R2
 # output dir
 d="/projects/bgmp/czakari2/bioinformatics/Bi623/ass/QAA/fastQC_output"
 
-mkdir $d
+#mkdir $d
 
 conda activate bgmp_py39
 module load fastqc/0.11.5
 
-/usr/bin/time -v fastqc $file1 $file2 $file3 $file4 -o $d
+/usr/bin/time -v fastqc $file1 -o $d
+/usr/bin/time -v fastqc $file2 -o $d
+/usr/bin/time -v fastqc $file3 -o $d
+/usr/bin/time -v fastqc $file4 -o $d
