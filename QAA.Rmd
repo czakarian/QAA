@@ -2,27 +2,41 @@
 title: "RNA-seq Quality Assessment Assignment (QAA)"
 author: "Christina Zakarian"
 date: "9-4-2021"
-output: html_document
+output:
+  rmarkdown::pdf_document:
+    fig_caption: yes        
+    includes:  
+      in_header: my_header.tex
 ---
 ### Objectives
-The objectives of this assignment are to use existing tools for quality assessment and adaptor trimming, compare the quality assessments to those from own software, and to summarize other important information about the RNA-Seq data set.
+The objectives of this assignment are to use existing tools for quality assessment and adapter trimming, compare the quality assessments to those from own software, and to summarize other important information about the RNA-Seq data set.
 
 ### Input Files
-The two samples I will be working with and their file locations:   
+The two samples I will be working with and the file locations of the paired end FASTQ files:   
 
-**1. 10_2G_both_S8_L008**  
-  /projects/bgmp/shared/2017_sequencing/demultiplexed/10_2G_both_S8_L008_R1_001.fastq.gz 
-  /projects/bgmp/shared/2017_sequencing/demultiplexed/10_2G_both_S8_L008_R2_001.fastq.gz 
-  
-**2. 31_4F_fox_S22_L008**  
-  /projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R1_001.fastq.gz
-  /projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R2_001.fastq.gz
-  
+**10_2G_both_S8** 
+```
+/projects/bgmp/shared/2017_sequencing/demultiplexed/10_2G_both_S8_L008_R1_001.fastq.gz 
+/projects/bgmp/shared/2017_sequencing/demultiplexed/10_2G_both_S8_L008_R2_001.fastq.gz 
+```  
+**31_4F_fox_S22**
+```
+/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R1_001.fastq.gz
+/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R2_001.fastq.gz
+```
+
+**Github repository containing files/data in this report:** 
+https://github.com/czakarian/QAA  
+
+All sbatch scripts mentioned can be found in the github repository in the sbatch_scripts folder.  
+All python scripts mentioned can be found in the github repository in the python_scripts folder.  
+Output from fastQC and htseq-count can be found in fastQC_ouput and htseq_output folders.  
+
 ## Part 1 – Read quality score distributions
 
-#### 1. FastQC generated plots of quality score distributions and N content distributions
-
-```{r echo=FALSE}
+### 1. FastQC generated plots of quality score distributions and N content distributions
+**10_2G_both_S8 FastQC Plots:**
+```{r include=FALSE}
 s10_R1_per_base_qual = "fastQC_output/10_2G_both_S8_L008_R1_001_fastqc/Images/per_base_quality.png"
 s10_R1_per_seq_qual = "fastQC_output/10_2G_both_S8_L008_R1_001_fastqc/Images/per_sequence_quality.png"
 s10_R1_per_base_n = "fastQC_output/10_2G_both_S8_L008_R1_001_fastqc/Images/per_base_n_content.png"
@@ -38,300 +52,346 @@ s31_R2_per_seq_qual = "fastQC_output/31_4F_fox_S22_L008_R2_001_fastqc/Images/per
 s31_R2_per_base_n = "fastQC_output/31_4F_fox_S22_L008_R2_001_fastqc/Images/per_base_n_content.png"
 ```
 
-#### **Sample #1 (10_2G_both_S8)**
-
-```{r, echo=FALSE,out.width="50%",fig.cap="***Per Sequence Quality Scores.** Distribution of average quality scores per sequence for read 1 (left) and read 2 (right).* ",fig.show='hold'}
+```{r, echo=FALSE,out.width="50%", fig.cap="Per Sequence Quality Scores. Distribution of average quality scores per sequence for read 1 (left) and read 2 (right).", fig.show='hold'}
 knitr::include_graphics(c(s10_R1_per_seq_qual, s10_R2_per_seq_qual))
 ```
 
-```{r, echo=FALSE,out.width="50%",fig.cap="***Per Base Sequence Quality.** Distribution of average quality scores per base position for read 1 (left) and read 2 (right).*",fig.show='hold'}
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Base Sequence Quality. Distribution of average quality scores per base position for read 1 (left) and read 2 (right).",fig.show='hold'}
 knitr::include_graphics(c(s10_R1_per_base_qual, s10_R2_per_base_qual))
 ```
 
-```{r, echo=FALSE,out.width="50%",fig.cap="***Per Base N Content.** Distribution of average percent N content per base position for read 1 (left) and read 2 (right).* ",fig.show='hold'}
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Base N Content. Distribution of average percent N content per base position for read 1 (left) and read 2 (right). ",fig.show='hold'}
 knitr::include_graphics(c(s10_R1_per_base_n, s10_R2_per_base_n))
 ```
-
-#### **Sample #2 (31_4F_fox_S22)**
-```{r, echo=FALSE,out.width="50%",fig.cap="***Per Sequence Quality Scores.** Distribution of average quality scores per sequence for read 1 (left) and read 2 (right).* ",fig.show='hold'}
+**31_4F_fox_S22 FastQC Plots:**
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Sequence Quality Scores. Distribution of average quality scores per sequence for read 1 (left) and read 2 (right). ",fig.show='hold'}
 knitr::include_graphics(c(s31_R1_per_seq_qual, s31_R2_per_seq_qual))
 ```
 
-```{r, echo=FALSE,out.width="50%",fig.cap="***Per Base Sequence Quality.** Distribution of average quality scores per base position for read 1 (left) and read 2 (right).*",fig.show='hold'}
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Base Sequence Quality. Distribution of average quality scores per base position for read 1 (left) and read 2 (right).",fig.show='hold'}
 knitr::include_graphics(c(s31_R1_per_base_qual, s31_R2_per_base_qual))
 ```
 
-```{r, echo=FALSE,out.width="50%",fig.cap="***Per Base N Content.** Distribution of average percent N content per base position for read 1 (left) and read 2 (right).*",fig.show='hold'}
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Base N Content. Distribution of average percent N content per base position for read 1 (left) and read 2 (right).",fig.show='hold'}
 knitr::include_graphics(c(s31_R1_per_base_n, s31_R2_per_base_n))
 ```
 
-#### The quality score distribution plots show ... The per base N content plots show ... Are they consistent?
+According to the per base N content plots (for both R1 and R2), there is consistently very low average N content across base positions. The first few base positions do have slighter higher N content compared to the rest of the base positions, but it appears to be at very minimal levels (<1%). According to the per base quality score plots, this increased N content in the first few bases is to be expected. The per base quality score plots show a trend toward lower quality scores in the first few base positions, which consequently could result in more uncertainty in the actual base calls and therefore a higher proportion of N calls. 
 
-
-SBATCH script used to generate plots is shown below and can be found under ./sbatch_scripts/fastQC.sh  
+### 2. Quality score distribution plots generated by script from demultiplexing assignment
+**10_2G_both_S8 my plots:**
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Sequence Quality Scores. Distribution of average quality scores per sequence for read 1 (left) and read 2 (right). ",fig.show='hold'}
+knitr::include_graphics(c("my_QC_output/10_2G_both_S8_L008_R1.png", "my_QC_output/10_2G_both_S8_L008_R2.png"))
 ```
-#!/bin/bash
-
-#SBATCH --account=bgmp
-#SBATCH --partition=bgmp
-#SBATCH --cpus-per-task=8
-#SBATCH --nodes=1
-#SBATCH --time=0-04:00:00
-
-# input files
-file1="/projects/bgmp/shared/2017_sequencing/demultiplexed/10_2G_both_S8_L008_R1_001.fastq.gz"
-file2="/projects/bgmp/shared/2017_sequencing/demultiplexed/10_2G_both_S8_L008_R2_001.fastq.gz"
-file3="/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R1_001.fastq.gz"
-file4="/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R2_001.fastq.gz"
-
-# output dir
-d="/projects/bgmp/czakari2/bioinformatics/Bi623/ass/QAA/fastQC_output"
-
-mkdir $d
-
-conda activate bgmp_py39
-module load fastqc/0.11.5
-
-/usr/bin/time -v fastqc $file1 $file2 $file3 $file4 -o $d
+**31_4F_fox_S22 my plots:**
+```{r, echo=FALSE,out.width="50%",fig.cap="Per Base Sequence Quality. Distribution of average quality scores per base position for read 1 (left) and read 2 (right).",fig.show='hold'}
+knitr::include_graphics(c("my_QC_output/31_4F_fox_S22_L008_R1.png", "my_QC_output/31_4F_fox_S22_L008_R2.png"))
 ```
 
-#### 2. Run your quality score plotting script from your Demultiplexing assignment from Bi622. Describe how the FastQC quality score distribution plots compare to your own. If different, propose an explanation. Also, does the runtime differ? If so, why?
+The per base quality score plots generated by FastQC are very similar to the quality score plots generated by my quality score plotting python script. Both methods generated plots that clearly show a trend of reduced quality scores in the first few base positions and are otherwise followed by consistenly high quality scores for the rest of the base positions. There is a slight reduction in quality score at the very last base position for both plots as well. For read 1 and read 2 quality score distributions, both plotting methods demonstrate overall lower quality score for read 2. This is expected due to the increased chance for degradation to occur during the time the DNA is spent on the sequencer before read 2 sequences get read.   
 
-~/bioinformatics/Bi623/ass/QAA/my_QC_output
+```{r include=FALSE}
+library(tidyverse)
+```
 
-Where is my quality score plotting script?
-    /projects/bgmp/czakari2/bioinformatics/Bi622/Demultiplex/Assignment-the-first/qs_dist.py
+```{r echo=FALSE}
+# generate table to compare runtimes of fastQC and my script
+samples = c("10_2G_both_S8_L008_R1", "10_2G_both_S8_L008_R2", "31_4F_fox_S22_L008_R1", "31_4F_fox_S22_L008_R2")
+fastQC_times = c("8:23.42", "8:41.50", "0:26.16", "0:26.16")
+my_times = c("34:57.18", "35:24.24", "1:40.80", "1:40.44")
+t = tibble(Sample = samples, `fastQC Runtime (mm:ss)` = fastQC_times, `My Script Runtime (mm:ss)` = my_times)
+knitr::kable(t, "pipe", caption = "Run times for generating plots by fastQC and my own script")  
+```  
+The runtimes to generate plots by fastQC are ~3-4-fold faster compared to my quality score plot generating python script. This is likely because the code used by fastQC is better optimized than my code. Also, my code is only generating a single plot while fastQC is generating a whole report with multiple plots. One notable difference between the two is that fastQC is written in Java while my code is written in python. 
 
-Ran as SBATCH script (my_qc.sh)
-    ~First file (10_2G_both_S8_L008_R1) finished running in ~34 min
-        timewise seems to be okay 
-            for me 325908276 lines took ~34 min
-            for sally 28905720 lines took ~2min
-    ~31_4F_fox_S22_L008_R1 line number:
-        15153372 (should be a lot quicker)
+### 3. Overall data quality of the two libraries
 
-### 3. Comment on the overall data quality of your two libraries.
+Based on the fastQC generated plots and the plots generated from my own quality score plotting script, the quality of both library, 10_2G_both_S8 and 31_4F_fox_S22, appears to be of high quality. The per base quality score distributions, according to both the fastQC generated plots and my own plots, show consistently high average quality scores across bases with the expected lows and the very beginning and end base positions (as mentioned above). Read 2 quality is slightly lower on average than read 1, but overall the quality of both reads is of relatively high quality. The average per sequence quality score plots from fastQC show similar results as the per base distributions and confirm that the majority of sequences have high average quality scores. Likewise, the N content distribution plots show minimal N content across base positions with the exception of the very first few bases, which is to be expected. All in all, I would say that both libraries are of high quality and can be used to proceed with trimming and further analysis. 
 
-## Part 2 – Adaptor trimming comparison
+ 
+##### SBATCH script used to run fastQC (fastQC.sh) 
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/fastQC.sh
+```
+***
+##### SBATCH script used to run my quality score plotting script (my_qc.sh):
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/my_qc.sh
+```
+***
+##### Python script for generating quality score plots  (qs_dist.py):
+```{bash, echo=F, comment=NA}
+cat python_scripts/qs_dist.py
+```
+*** 
 
-### 4. Create a new conda environment called QAA and install cutadapt and Trimmomatic. 
+## Part 2 – Adapter trimming comparison
 
-Creating a new conda environment:
-    conda create --name QAA python=3.9
-    conda activate QAA
+#### 4. Installation of cutadapt and trimmomatic in new conda environment called QAA  
 
-environment location:               
-/projects/bgmp/czakari2/miniconda3/envs/QAA/projects/bgmp/czakari2/miniconda3/envs/QAA
-    
+##### Creating a new conda environment:
+```
+conda create --name QAA python=3.9
+conda activate QAA
+```
+##### Installation of cutadapt and trimmomatic:
+```   
 conda install cutadapt
 conda install trimmomatic
-  
+```
+##### Version confirmations:
+```
 cutadapt --version
-  3.4
+3.4
 trimmomatic -version
-  0.39
+0.39
+```
 
-### 5. Using cutadapt, properly trim adapter sequences from your assigned files. 
+#### 5. Trimming of adapter sequences using cutadapt
 
-Adaptor sequences (found at https://support-docs.illumina.com/SHARE/AdapterSeq/Content/SHARE/AdapterSeq/TruSeq/UDIndexes.htm):
-    Read 1 - AGATCGGAAGAGCACACGTCTGAACTCCAGTCA  
-    Read 2 - AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+##### Adapter sequences:
+```
+Read 1 - AGATCGGAAGAGCACACGTCTGAACTCCAGTCA 
+Read 2 - AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+```
 
-Ran as SBATCH script (cutadapt.sh)
-    Output in slurm-16182128.out
-        10_2G:
-            Percent of CPU this job got: 717%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 7:27.15
-            Maximum resident set size (kbytes): 921424
-            Exit status: 0
-        31_4F:
-            Percent of CPU this job got: 698%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 0:22.07
-            Maximum resident set size (kbytes): 578072
-            Exit status: 0
+##### Proportion of reads trimmed:   
+```{r echo=FALSE}
+# generate table to compare read trimming
+samples = c("10_2G_both_S8", "31_4F_fox_S22")
+total_reads = c(81477069, 3788343)
+read1 = c(2131954, 456168)
+pread1 = c("2.6%", "12.0%")
+read2 = c(2770901, 482503)
+pread2 = c("3.4%", "12.7%")
+t = tibble(Sample = samples, `Total read-pairs` = total_reads, `# Read 1 Trimmed` = read1, `% Read 1 Trimmed` = pread1, `# Read 2 Trimmed` = read2, `% Read 2 Trimmed` = pread2)
+knitr::kable(t, "pipe")  
+``` 
 
-What proportion of reads (both forward and reverse) were trimmed?   
+##### Proportion of basepairs trimmed:
+```{r echo=FALSE}
+# generate table to compare read trimming
+samples = c("10_2G_both_S8", "31_4F_fox_S22")
+total_bp = c(16458367938, 765245286)
+filt_bp = c(16434424025, 740901113)
+pfilt_bp = c("99.9%", "96.8%")
+read1 = c(8218682322, 370502712)
+read2 = c(8215741703, 370398401)
+t = tibble(Sample = samples, `# basepairs processed` = total_bp, `# basepairs written` = filt_bp, `% basepairs written` = pfilt_bp, `# Read 1 basepairs` = read1, `# Read 2 basepairs` = read2)
+knitr::kable(t, "pipe")  
+``` 
 
-Use your Unix skills to search for the adapter sequences in your datasets and confirm the expected sequence orientations. Report the commands you used, the reasoning behind them, and how you confirmed the adapter sequences. 
+Running cutadapt on the 2 two samples, resulted in trimming of 2.6% of read 1 sequences and 3.4% of read 2 sequences for the 10_2G sample. For the 31_4F sample, there was 12.0% trimming of read 1 sequences and 12.7% trimming of read 2 sequences. In terms of basepairs, 99.9% of basepairs were retained for 10_2G and 96.8% of basepairs for 31_4F. In both cases, read 2 sequences were trimmed at slightly higher levels compared to read 1, but this difference is quite small (<1%). 
 
-### 6. Use Trimmomatic to quality trim your reads. Specify the following, in this order:
-    LEADING: quality of 3
-    TRAILING: quality of 3
-    SLIDING WINDOW: window size of 5 and required quality of 15
-    MINLENGTH: 35 bases
+##### Confirmation of adapter sequences:  
 
-Be sure to output compressed files and clear out any intermediate files.
-    remove the intermediate adaptor trimmed files -> left with trimmomatic kept and tossed files 
+I used grep / wc -l to search for and determine the frequency of the provided adapter sequences in both the read 1 and read 2 files. I used the 31_4F_fox_S22 for doing this confirmation since it is the smaller of the two files. Assuming the provided adapter sequences were correct, we expect to see the R1 sequence present only in read 1 files and the read 2 sequence only in read 2 files. As show below, R1 adapter seq was only found in read 1 files (99875 times) and R2 adapter seq was only found in read 2 files (100174 times). Searching the reverse orientation of both sequences was not present at all in either read 1 or read 2 files (not show below). This is expected and confirms that the R1 adapter sequence is the sequence found at the 5' of the read 2 primer binding site. For read 1 sequences, we would want to trim off any part of the sequence that includes or comes after the R1 adapter sequence since this is where the read 2 primer binding site begins. Similarly, the R2 adapter sequence is the sequence found at the 5' of the read 1 primer binding site and we would want to trim any part of read 2 sequences that include or come after the R2 adapter sequence since this is where the read 1 primer binding site begins.  
 
-How to use trimmomatic? 
-    Read: https://datacarpentry.org/wrangling-genomics/03-trimming/index.html
-    trimmomatic PE -threads 8 inpr1 inpr2 out1kept out1toss out2kept out2toss \
-        LEADING:3 \
-        TRAILING:3 \
-        SLIDINGWINDOW:5:15 \
-        MINLEN:35
+```
+# searching R1 seq in read 1 
+zcat "/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R1_001.fastq.gz" | 
+grep "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA" | wc -l
+99875
+# searching R1 seq in read 2 
+zcat "/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R2_001.fastq.gz" | 
+grep "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA" | wc -l
+0
+# searching R2 seq in read 1
+zcat "/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R1_001.fastq.gz" | 
+grep "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" | wc -l
+0
+# searching R2 seq in read 2
+zcat "/projects/bgmp/shared/2017_sequencing/demultiplexed/31_4F_fox_S22_L008_R2_001.fastq.gz" | 
+grep "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" | wc -l
+100174
+```
 
-Ran as SBATCH script (trimmomatic.sh)
-    Output in slurm-16182913.out:
-        31_4F:
-            Percent of CPU this job got: 227%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 1:34.84
-            Maximum resident set size (kbytes): 437824
-            Exit status: 0
-        10_2G:
-            Percent of CPU this job got: 224%
-	        Elapsed (wall clock) time (h:mm:ss or m:ss): 35:51.41
-	        Maximum resident set size (kbytes): 439676
-            Exit status: 0
+#### 6. Quality trimming of reads using Trimmomatic 
 
-Trimmomatic Results:
-    31_4F:
-        Input Read Pairs: 3788343 
-        Both Surviving: 3597908 (94.97%) 
-        Forward Only Surviving: 151048 (3.99%) 
-        Reverse Only Surviving: 2965 (0.08%) 
-        Dropped: 36422 (0.96%)
-    10_2G:
-        Input Read Pairs: 81477069 
-        Both Surviving: 77520904 (95.14%) 
-        Forward Only Surviving: 3865386 (4.74%) 
-        Reverse Only Surviving: 53289 (0.07%) 
-        Dropped: 37490 (0.05%)
+##### Trimmomatic Results:
+```{r echo=FALSE}
+# trimmomatic results
+cats = c("Input Read Pairs", "Both Surviving", "Forward Only Surviving", "Reverse Only Surviving", "Dropped") 
+s10_2G = c(81477069, 77520904, 3865386, 53289, 37490)
+p10_2G = c("100%", "95.14%", "4.74%", "0.07%", "0.05%")
+s31_4F = c(3788343, 3597908, 151048, 2965, 36422)
+p31_4F = c("100%", "94.97%", "3.99%", "0.08%", "0.96%")
+samples = c("10_2G_both_S8_L008", "31_4F_fox_S22_L008")
+t = tibble(Category = cats, `# Read Pairs (10_2G)` = s10_2G, `% Input Read Pairs (10_2G)` = p10_2G, `# Read Pairs (31_4F)` = s31_4F, `% Input Read Pairs (31_4F)` = p31_4F)
+knitr::kable(t, "pipe")  
+``` 
 
-zcat 31_4F_fox_S22_L008_R1_001_AT_Trk.fastq.gz | wc -l 
-14391632
-zcat 31_4F_fox_S22_L008_R1_001_AT_Tro.fastq.gz | wc -l 
-604192
-zcat 31_4F_fox_S22_L008_R2_001_AT_Trk.fastq.gz | wc -l 
-14391632
-zcat 31_4F_fox_S22_L008_R2_001_AT_Tro.fastq.gz | wc -l 
-11860
+#### 7. Generating plots for trimmed read length distributions 
 
-### 7. Plot the trimmed read length distributions for both R1 and R2 reads (on the same plot). You can produce 2 different plots for your 2 different RNA-seq samples. There are a number of ways you could possibly do this. One useful thing your plot should show, for example, is whether R1s are trimmed more extensively than R2s, or vice versa. Comment on whether you expect R1s and R2s to be adapter-trimmed at different rates.
+##### Bash commands to get read lengths after trimming to be used for plotting:
+```
+zcat 10_2G_both_S8_L008_R1_001_AT_Trk.fastq.gz | sed -n 2~4p | awk '{print length($0)}' 
+zcat 10_2G_both_S8_L008_R2_001_AT_Trk.fastq.gz | sed -n 2~4p | awk '{print length($0)}' 
+zcat 31_4F_fox_S22_L008_R1_001_AT_Trk.fastq.gz | sed -n 2~4p | awk '{print length($0)}' 
+zcat 31_4F_fox_S22_L008_R2_001_AT_Trk.fastq.gz | sed -n 2~4p | awk '{print length($0)}' 
+```  
 
-How to get distribution values from the trimmed fastq files? 
-    use bash to get length distribution and plot with R
+```{r}
+# read in the list of read lengths
+s10_R1 = read.table("./read_lengths/10_2G_both_S8_L008_R1_001_AT_Trk.txt", 
+                    col.names = c("Read_Length"))
+s10_R2 = read.table("./read_lengths/10_2G_both_S8_L008_R2_001_AT_Trk.txt", 
+                    col.names = c("Read_Length"))
+s31_R1 = read.table("./read_lengths/31_4F_fox_S22_L008_R1_001_AT_Trk.txt", 
+                    col.names = c("Read_Length"))
+s31_R2 = read.table("./read_lengths/31_4F_fox_S22_L008_R2_001_AT_Trk.txt", 
+                    col.names = c("Read_Length"))
 
-Command to get length distribution (did for each of the 4 files):
-    zcat 10_2G_both_S8_L008_R2_001_AT_Trk.fastq.gz | sed -n 2~4p | awk '{print length($0)}' > line_counts/10_2G_both_S8_L008_R2_001_AT_Trk.txt
+# generate count distributions for each
+c10_R1 = count(s10_R1, `Read_Length`)
+c10_R2 = count(s10_R2, `Read_Length`)
+c31_R1 = count(s31_R1, `Read_Length`)
+c31_R2 = count(s31_R2, `Read_Length`)
+```
+
+```{r, out.width="50%", fig.cap="Read Length Distributions. Distribution of read lengths after cutadapt and trimmomatic trimming.", fig.show='hold'}
+
+ggplot() + 
+  geom_line(data = c10_R1, aes(x = `Read_Length`, y = n, color = "Read 1")) +
+  geom_line(data = c10_R2, aes(x = `Read_Length`, y = n, color = "Read 2")) +
+  labs(x= "Read Length", y="Frequency (log10)", 
+       title="Read Length Distribution for 10_2G_both_S8", color= "") +
+  scale_y_log10()
+
+ggplot() +
+  geom_line(data = c31_R1, aes(x = `Read_Length`, y = n, color = "Read 1")) +
+  geom_line(data = c31_R2, aes(x = `Read_Length`, y = n, color = "Read 2")) +
+  labs(x= "Read Length", y="Frequency (log10)", 
+       title="Read Length Distribution for 31_4F_fox_S22", color= "") +
+  scale_y_log10()
+```
+
+I would not expect there to be different levels of adapter-trimming between read 1 sequences and read 2 sequences, however I do expect there to be relatively higher levels of quality trimming for read 2 sequences compared to read 1, which is confirmed by the 2 plots above where we can see a greater number of read 2 sequences that have shorter read lengths after trimming. This is because read 2 sequencing is performed after read 1 sequencing and therefore the DNA is more likely to have degraded during this waiting period in the sequencer and would have overall lower quality compared to read 1. I don't think read 1 and read 2 should differ in their levels of adapter trimming since the main reason for adapter trimming is if the read overflows into the primer binding site of the next read. This would happen if the insert length is shorter than the read length, but both of these parameters are the same for both reads, and hence should not differ. 
+
+
+##### SBATCH script used to run cutadapt (cutadapt.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/cutadapt.sh
+```
+*** 
+##### SBATCH script used to run trimmomatic (trimmomatic.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/trimmomatic.sh
+```
+*** 
+
 
 ## Part 3 – Alignment and strand-specificity
 
-### 8. Install sofware. In your QAA environment, use conda to install:
-    star
-    numpy
-    pysam
-    matplotlib
-    Then pip install HTSeq
+#### 8. Conda installations in QAA environment
 
+```
 conda install star
 conda install numpy
 conda install pysam
 conda install matplotlib
 pip install HTSeq
+```
 
-### 9. Find publicly available mouse genome fasta files (Ensemble release 104) and generate an alignment database from them. Align the reads to your mouse genomic database using a splice-aware aligner. Use the settings specified in PS8 from Bi621. Hint - you will need to use gene models to perform splice-aware alignment, see PS8 from Bi621.
+#### 9. Performing alignment of reads to mouse genomic database using STAR aligner. 
 
-Downloaded the following fasta and gtf files from ensembl for mouse:
-    http://ftp.ensembl.org/pub/release-104/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz
-    http://ftp.ensembl.org/pub/release-104/gtf/mus_musculus/Mus_musculus.GRCm39.104.gtf.gz
+##### Downloaded the following fasta and gtf files from ensembl for mouse:  
+```
+http://ftp.ensembl.org/pub/release-104/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz
+http://ftp.ensembl.org/pub/release-104/gtf/mus_musculus/Mus_musculus.GRCm39.104.gtf.gz
+```
+##### Steps:  
+1. Build a reference database with STAR using the above ensembl files   
+2. Align RNA-seq reads to the reference database 
 
-According to what we did in PS8 (but with zebrafish), we need to build a reference database using the downloaded genome fasta files and then we will align our RNA-seq fastq files to the reference database -> this will give us as output a sam file for each of our 2 alignments.
-
-Make a directory to contain the STAR database. 
-    Name of assembly: Mus_musculus.GRCm39.dna
-    Release of Ensembl: ens104
-    Version of STAR: 2.7.9a
-    $ mkdir Mus_musculus.GRCm39.dna.ens104.STAR_2.7.9a
-
-Build a STAR database using the mouse reference sequence
-    Ran an SBATCH script (buildSTAR.sh) // make sure the files from ensembl are unzipped 
-        Percent of CPU this job got: 531%
-        Elapsed (wall clock) time (h:mm:ss or m:ss): 17:46.53
-        Maximum resident set size (kbytes): 32290796
-        Exit status: 0
-        
-Perform alignment of the trimmed RNAseq files to the STAR database 
-    Ran SBATCH scripts // one per read-pair 
-        alignSTAR_10_2G.sh 
-            slurm-16183731.out 
-                Percent of CPU this job got: 738%
-                Elapsed (wall clock) time (h:mm:ss or m:ss): 9:46.84
-                Maximum resident set size (kbytes): 27522344
-                Exit status: 0
-        alignSTAR_31_4F.sh 
-            slurm-16183733.out 
-                Percent of CPU this job got: 558%
-                Elapsed (wall clock) time (h:mm:ss or m:ss): 0:40.86
-                Maximum resident set size (kbytes): 27346240
-                Exit status: 0
-    Output files from star alignment in star_10_2G and star_31_4F directories 
-    $ wc -l star_10_2G/10_2G_Aligned.out.sam
-        162954314          
-    $ wc -l star_31_4F/31_4F_Aligned.out.sam 
-        7555580 
-
-### 10. Using your script from PS8 in Bi621, report the number of mapped and unmapped reads from each of your 2 sam files. 
+##### Make a directory to contain the STAR database: 
+```
+Name of assembly: Mus_musculus.GRCm39.dna
+Release of Ensembl: ens104
+Version of STAR: 2.7.9a
+$ mkdir Mus_musculus.GRCm39.dna.ens104.STAR_2.7.9a
+```
     
-31_4F_Aligned.out.sam
-    Mapped: 6969878
-    Unmapped: 225938
+##### SBATCH script used to build STAR database (buildSTAR.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/buildSTAR.sh
+```
+##### SBATCH script used perform alignment of trimmed RNA-seq reads to STAR database (alignSTAR_10_2G.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/alignSTAR_10_2G.sh
+```
+##### SBATCH script used perform alignment of trimmed RNA-seq reads to STAR database (alignSTAR_31_4F.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/alignSTAR_31_4F.sh
+```
+***
 
-10_2G_Aligned.out.sam
-    Mapped: 152719556
-    Unmapped: 2322252
+#### 10. Number of mapped and unmapped reads 
 
-### 11. Count reads that map to features using htseq-count. You should run htseq-count twice: once with --stranded=yes and again with --stranded=no. Use default parameters otherwise.
+```{r echo=FALSE}
+# table of mapped/unmapped reads 
+samples = c("10_2G_both_S8", "31_4F_fox_S22")
+mapped = c(152719556, 6969878)
+unmapped = c(2322252, 225938)
+t = tibble(Sample = samples, Mapped = mapped, Unmapped = unmapped)
+knitr::kable(t, "pipe")  
+``` 
 
-Read https://htseq.readthedocs.io/en/release_0.11.1/tour.html#tour
+##### Python script used to count mapped and unmapped reads in SAM file (count_mapped.py)
+```{bash, echo=F, comment=NA}
+cat python_scripts/count_mapped.py
+```
+***
 
+#### 11. Counting reads that map to features using htseq-count
+
+```
 htseq-count --version
-    0.13.5
+0.13.5
+```
 
-!! Need to direct the output to a file otherwise will just print to standard output stream !!
-
-Ran SBATCH scripts:
-    htseq_10_2G.sh (stranded=yes) -> slurm-16183897.out
-            Percent of CPU this job got: 99%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 1:36:48
-            Maximum resident set size (kbytes): 167724
-            Exit status: 0
-    htseq_10_2G.sh (stranded=no) -> slurm-16183897.out
-            Percent of CPU this job got: 99%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 1:38:05
-            Maximum resident set size (kbytes): 170088
-            Exit status: 0
-    htseq_31_4F.sh (stranded=yes) -> slurm-16183851.out
-            Percent of CPU this job got: 99%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 5:25.55
-            Maximum resident set size (kbytes): 166672
-            Exit status: 0    
-    htseq_31_4F.sh (stranded=no) -> slurm-16183851.out  
-            Percent of CPU this job got: 100%
-            Elapsed (wall clock) time (h:mm:ss or m:ss): 5:37.07
-            Maximum resident set size (kbytes): 165764
-            Exit status: 0   
-
-### 12. Demonstrate convincingly whether or not the data are from “strand-specific” RNA-Seq libraries. Include any comands/scripts used. Briefly describe your evidence, using quantitative statements (e.g. "I propose that these data are/are not strand-specific, because X% of the reads are y, as opposed to z."). Hint - recall ICA4 from Bi621.
-
+##### Commands to get total # reads and # that mapped to a feature:
+```
 $ awk '{sum+=$2} END {print sum}' 31_4F_stranded.genecount 
 $ grep -v '^__' 31_4F_stranded.genecount | awk '{sum+=$2} END {print sum}'
 $ grep -v '^__' 31_4F_unstranded.genecount | awk '{sum+=$2} END {print sum}'
 
-Total reads: 3597908
-Mapped to feature (stranded=yes): 180499, 5.02%
-Mapped to feature (stranded=no): 2922418, 81.2%
-
-what about stranded=reverse?? try running that way? 
-$ grep -v '^__' 31_4F_reverse.genecount | awk '{sum+=$2} END {print sum}'
-    2913866 -> similar #s to unstranded
-
 $ awk '{sum+=$2} END {print sum}' 10_2G_stranded.genecount
 $ grep -v '^__' 10_2G_stranded.genecount | awk '{sum+=$2} END {print sum}'
 $ grep -v '^__' 10_2G_unstranded.genecount | awk '{sum+=$2} END {print sum}'
+```
 
-Total reads: 3597908
-Mapped to feature (stranded=yes): 180499, 5.02%
-Mapped to feature (stranded=no): 2922418, 81.2%
+```{r echo=FALSE}
+# table of mapped/unmapped reads 
+cat = c("mapped", "no_feature", "ambiguous", "too_low_aQual", "not_aligned", "alignment_not_unique")
+s10_2G_yes = c(2900936, 69853236, 48198, 136867, 1088394, 3493273)
+s10_2G_no = c(65025604, 3771976, 4004790, 136867, 1088394, 3493273)
+s31_4F_yes = c(180499, 3142921, 3343, 5281, 110170, 155694)
+s31_4F_no = c(2922418, 237215, 167130, 5281, 110170, 155694)
+
+p = tibble(s10_2G_yes, s10_2G_no, s31_4F_yes, s31_4F_no)
+p = p %>% mutate(p1=as.numeric(paste0(round(s10_2G_yes/sum(s10_2G_yes)*100,2))))
+p = p %>% mutate(p2=as.numeric(paste0(round(s10_2G_no/sum(s10_2G_no)*100,2))))
+p = p %>% mutate(p3=as.numeric(paste0(round(s31_4F_yes/sum(s31_4F_yes)*100,2))))
+p = p %>% mutate(p4=as.numeric(paste0(round(s31_4F_no/sum(s31_4F_no)*100,2))))
+
+t1 = tibble(`Category` = cat, `Count [10_2G stranded]` = s10_2G_yes, `Count [10_2G unstranded]` = s10_2G_no, `Count [31_4F stranded]` = s31_4F_yes, `Count [31_4F unstranded]` = s31_4F_no)
+
+t2 = tibble(`Category` = cat, `% [10_2G stranded]` = p$p1, `% [10_2G unstranded]` = p$p2, `% [31_4F stranded]` = p$p3, `% [31_4F unstranded]` = p$p4)
+
+knitr::kable(t1, "pipe") 
+knitr::kable(t2, "pipe") 
+``` 
+#### 12. Strand-specificity of RNA-Seq libraries  
+
+According to the htseq-count data presented above, I propose that the two libraries (10_2G and 31_4F) are strand-specific. When running htseq-count with the stranded parameter set to yes, we only see 3.74% of reads mapping to features for sample 10_2G and 5.02% of reads for sample 31_4F. On the other hand, running htseq-count with the stranded parameter set to no, we see 83.88% reads mapping to features for 10_2G and 81.23% for 31_4F. Although we do see a higher percentage of mapping when stranded=no, this does not necessarily mean that the libraries are unstranded. If the libraries were actually unstranded, we would expect to see about half the amount of mapping with stranded=yes compared to stranded=no because we would expect an equal amount of mapping to each strand. However, we see a very low proportion of reads mapping with stranded=yes. This leads me to believe that the libraries are actually stranded, but the opposite strand is being read with stranded=yes. To confirm this, htseq-count can be run with stranded=reverse, which should should show similar mapping counts to that of unstranded. 
 
 
+##### SBATCH script used to run htseq-count (htseq_10_2G.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/htseq_10_2G.sh
+```
+##### SBATCH script used to run htseq-count (htseq_31_4F.sh)
+```{bash, echo=F, comment=NA}
+cat sbatch_scripts/htseq_31_4F.sh
+```

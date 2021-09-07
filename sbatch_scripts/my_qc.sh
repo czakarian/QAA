@@ -29,9 +29,6 @@ conda activate bgmp_py39
 # mkdir $d
 
 /usr/bin/time -v $script -f $file3 -p $d$p3
-
 /usr/bin/time -v $script -f $file4 -p $d$p4
-
 /usr/bin/time -v $script -f $file1 -p $d$p1 
-
 /usr/bin/time -v $script -f $file2 -p $d$p2
