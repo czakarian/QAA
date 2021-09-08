@@ -2,11 +2,12 @@
 title: "RNA-seq Quality Assessment Assignment (QAA)"
 author: "Christina Zakarian"
 date: "9-4-2021"
-output:
-  rmarkdown::pdf_document:
-    fig_caption: yes        
-    includes:  
-      in_header: my_header.tex
+output: html_document
+# output:
+#   rmarkdown::pdf_document:
+#     fig_caption: yes
+#     includes:
+#       in_header: my_header.tex
 ---
 ### Objectives
 The objectives of this assignment are to use existing tools for quality assessment and adapter trimming, compare the quality assessments to those from own software, and to summarize other important information about the RNA-Seq data set.
@@ -32,7 +33,7 @@ All sbatch scripts mentioned can be found in the github repository in the sbatch
 All python scripts mentioned can be found in the github repository in the python_scripts folder.  
 Output from fastQC and htseq-count can be found in fastQC_ouput and htseq_output folders.  
 
-## Part 1 – Read quality score distributions
+# Part 1 – Read quality score distributions
 
 ### 1. FastQC generated plots of quality score distributions and N content distributions
 **10_2G_both_S8 FastQC Plots:**
@@ -109,23 +110,23 @@ The runtimes to generate plots by fastQC are ~3-4-fold faster compared to my qua
 Based on the fastQC generated plots and the plots generated from my own quality score plotting script, the quality of both library, 10_2G_both_S8 and 31_4F_fox_S22, appears to be of high quality. The per base quality score distributions, according to both the fastQC generated plots and my own plots, show consistently high average quality scores across bases with the expected lows and the very beginning and end base positions (as mentioned above). Read 2 quality is slightly lower on average than read 1, but overall the quality of both reads is of relatively high quality. The average per sequence quality score plots from fastQC show similar results as the per base distributions and confirm that the majority of sequences have high average quality scores. Likewise, the N content distribution plots show minimal N content across base positions with the exception of the very first few bases, which is to be expected. All in all, I would say that both libraries are of high quality and can be used to proceed with trimming and further analysis. 
 
  
-##### SBATCH script used to run fastQC (fastQC.sh) 
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/fastQC.sh
-```
-***
-##### SBATCH script used to run my quality score plotting script (my_qc.sh):
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/my_qc.sh
-```
-***
-##### Python script for generating quality score plots  (qs_dist.py):
-```{bash, echo=F, comment=NA}
-cat python_scripts/qs_dist.py
-```
-*** 
+###### SBATCH script used to run fastQC (fastQC.sh)
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/fastQC.sh -->
+<!-- ``` -->
+<!-- *** -->
+###### SBATCH script used to run my quality score plotting script (my_qc.sh)
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/my_qc.sh -->
+<!-- ``` -->
+<!-- *** -->
+###### Python script for generating quality score plots  (qs_dist.py)
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat python_scripts/qs_dist.py -->
+<!-- ``` -->
+<!-- ***  -->
 
-## Part 2 – Adapter trimming comparison
+# Part 2 – Adapter trimming comparison
 
 #### 4. Installation of cutadapt and trimmomatic in new conda environment called QAA  
 
@@ -269,19 +270,19 @@ ggplot() +
 I would not expect there to be different levels of adapter-trimming between read 1 sequences and read 2 sequences, however I do expect there to be relatively higher levels of quality trimming for read 2 sequences compared to read 1, which is confirmed by the 2 plots above where we can see a greater number of read 2 sequences that have shorter read lengths after trimming. This is because read 2 sequencing is performed after read 1 sequencing and therefore the DNA is more likely to have degraded during this waiting period in the sequencer and would have overall lower quality compared to read 1. I don't think read 1 and read 2 should differ in their levels of adapter trimming since the main reason for adapter trimming is if the read overflows into the primer binding site of the next read. This would happen if the insert length is shorter than the read length, but both of these parameters are the same for both reads, and hence should not differ. 
 
 
-##### SBATCH script used to run cutadapt (cutadapt.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/cutadapt.sh
-```
-*** 
-##### SBATCH script used to run trimmomatic (trimmomatic.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/trimmomatic.sh
-```
-*** 
+###### SBATCH script used to run cutadapt (cutadapt.sh) 
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/cutadapt.sh -->
+<!-- ``` -->
+<!-- ***  -->
+###### SBATCH script used to run trimmomatic (trimmomatic.sh)
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/trimmomatic.sh -->
+<!-- ``` -->
+<!-- ***  -->
 
 
-## Part 3 – Alignment and strand-specificity
+# Part 3 – Alignment and strand-specificity
 
 #### 8. Conda installations in QAA environment
 
@@ -303,6 +304,7 @@ http://ftp.ensembl.org/pub/release-104/gtf/mus_musculus/Mus_musculus.GRCm39.104.
 ##### Steps:  
 1. Build a reference database with STAR using the above ensembl files   
 2. Align RNA-seq reads to the reference database 
+3. Perform counts for mapped and unmapped reads 
 
 ##### Make a directory to contain the STAR database: 
 ```
@@ -312,21 +314,21 @@ Version of STAR: 2.7.9a
 $ mkdir Mus_musculus.GRCm39.dna.ens104.STAR_2.7.9a
 ```
     
-##### SBATCH script used to build STAR database (buildSTAR.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/buildSTAR.sh
-```
-##### SBATCH script used perform alignment of trimmed RNA-seq reads to STAR database (alignSTAR_10_2G.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/alignSTAR_10_2G.sh
-```
-##### SBATCH script used perform alignment of trimmed RNA-seq reads to STAR database (alignSTAR_31_4F.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/alignSTAR_31_4F.sh
-```
-***
+###### SBATCH script used to build STAR database (buildSTAR.sh)
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/buildSTAR.sh -->
+<!-- ``` -->
+###### SBATCH script used perform alignment of trimmed RNA-seq reads to STAR database (alignSTAR_10_2G.sh) 
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/alignSTAR_10_2G.sh -->
+<!-- ``` -->
+###### SBATCH script used perform alignment of trimmed RNA-seq reads to STAR database (alignSTAR_31_4F.sh) 
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/alignSTAR_31_4F.sh -->
+<!-- ``` -->
+<!-- *** -->
 
-#### 10. Number of mapped and unmapped reads 
+#### 10. Number of mapped and unmapped reads in SAM files using my python script from PS8
 
 ```{r echo=FALSE}
 # table of mapped/unmapped reads 
@@ -337,11 +339,11 @@ t = tibble(Sample = samples, Mapped = mapped, Unmapped = unmapped)
 knitr::kable(t, "pipe")  
 ``` 
 
-##### Python script used to count mapped and unmapped reads in SAM file (count_mapped.py)
-```{bash, echo=F, comment=NA}
-cat python_scripts/count_mapped.py
-```
-***
+###### Python script used to count mapped and unmapped reads in SAM file (count_mapped.py) 
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat python_scripts/count_mapped.py -->
+<!-- ``` -->
+<!-- *** -->
 
 #### 11. Counting reads that map to features using htseq-count
 
@@ -387,11 +389,11 @@ knitr::kable(t2, "pipe")
 According to the htseq-count data presented above, I propose that the two libraries (10_2G and 31_4F) are strand-specific. When running htseq-count with the stranded parameter set to yes, we only see 3.74% of reads mapping to features for sample 10_2G and 5.02% of reads for sample 31_4F. On the other hand, running htseq-count with the stranded parameter set to no, we see 83.88% reads mapping to features for 10_2G and 81.23% for 31_4F. Although we do see a higher percentage of mapping when stranded=no, this does not necessarily mean that the libraries are unstranded. If the libraries were actually unstranded, we would expect to see about half the amount of mapping with stranded=yes compared to stranded=no because we would expect an equal amount of mapping to each strand. However, we see a very low proportion of reads mapping with stranded=yes. This leads me to believe that the libraries are actually stranded, but the opposite strand is being read with stranded=yes. To confirm this, htseq-count can be run with stranded=reverse, which should should show similar mapping counts to that of unstranded. 
 
 
-##### SBATCH script used to run htseq-count (htseq_10_2G.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/htseq_10_2G.sh
-```
-##### SBATCH script used to run htseq-count (htseq_31_4F.sh)
-```{bash, echo=F, comment=NA}
-cat sbatch_scripts/htseq_31_4F.sh
-```
+###### SBATCH script used to run htseq-count (htseq_10_2G.sh) 
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/htseq_10_2G.sh -->
+<!-- ``` -->
+###### SBATCH script used to run htseq-count (htseq_31_4F.sh) 
+<!-- ```{bash, echo=F, comment=NA} -->
+<!-- cat sbatch_scripts/htseq_31_4F.sh -->
+<!-- ``` -->
